@@ -7,9 +7,13 @@
     "start": "nodemon app/index.js --ignore logs"
   },
   "dependencies": {
+    "body-parser": "^1.17.1",
+    "common": "https://github.com/McSim1993/common",
+    "connect-mongo": "^1.3.2",
     "express": "~4.14.0",
     "express-session": "~1.14.0",
-    "common": "https://github.com/McSim1993/common"
+    "mongoose": "^4.9.0",
+    "mongoose-unique-validator": "^1.0.5"
   },
   "author": "",
   "license": "Apache-2.0"
