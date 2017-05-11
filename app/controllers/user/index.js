@@ -51,6 +51,8 @@ UserController.registerAction('login', function(){
 UserController.registerAction('logout', function(){
     console.log(this.req.session);
     this.req.session.destroy();
+    return("User logged out");
+
 });
 
 UserController.registerAction('getDecks', function(){
