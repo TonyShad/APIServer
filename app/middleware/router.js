@@ -3,12 +3,9 @@ const router = new Router();
 
 function route(req, res, next, path, action) {
 	const Controller = require('../controllers/' + path);
-	const controller = new Controller(req);
+	const controller = new Controller(req, res);
 	controller.callAction(action)
 		.then((result) => {
-			console.log("then");
-			console.log(result);
-			res.append('Set-Cookie', ['ochko=jopa']);
 			res.end(result);
         })
         .catch(next);

@@ -10,7 +10,7 @@ const UserSchema = new Schema({
   email: { type: String, index: true, unique: true, required: true, default: '' },
   hashed_password: { type: String, required: true },
   salt: { type: String, default: '' },
-  decks: [{type: Object}]
+  decks: [{_id: false, name: {type: String, required: false, uniquie: false}}]
 
 });
 

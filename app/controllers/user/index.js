@@ -7,64 +7,44 @@ const log = require('../../logger');
 
 
 class UserController extends Controller {
-	constructor(req) {
-		super(req);
+	constructor(req, res) {
+		super(req, res);
 	}
 }
 
 UserController.registerAction('register', function(){
-    console.log(this.req.body);
 	const user = new User(this.req.body);
-    try {
-        console.log(user);
-        user.save(function (err) {
-            if (err) log.debug(err);
-            console.log('SAVED1');
+    const session = this.req.session;
+    return user.save()
+        .then(function() {
+            log.debug("user "+ user.email + " saved");
+            this.res.writeHead("Saved to DB");
+            return(session.id);
         });
-        return "Saved to DB";
-    } catch (err) {
-        console.log(err);
-        const errors = Object.keys(err.errors)
-                .map(field => err.errors[field].message);
-        return err;
-    }
+    
 });
 
 UserController.registerAction('login', function(){
-    console.log(this.req.query);
     const password = this.req.query.password;
     const session = this.req.session;
+    const response = this.res;
     let cookie = [];
-    log.debug("session: " + session);
+    console.log(session);
     log.debug(password);
-    User.findOne({email: this.req.query.email}, function(err, user){
-        log.debug("user is:");
-        console.log(user);
-        if(err){ 
-            console.log(err);
-            return err;
-        } else {
-            try {
-                if(user.authenticate(password)){
-                    session.user_id = user.id;
-                    session.save(function(err) {
-                        if(err){
-                            log.debug("session save error: " + err);
-                        }
-                    });
-                    log.debug("auth done well");
-                    log.debug(session);
-                    cookie = {name: 'Set-Cookie', value: 'user_id='+user.id};
-                    return({header: cookie});
-                } else {
-                    throw new Error(errorCodes.notFound, 'User not found', {actionName: 'login'});
-                }
-            } catch (err){
-                console.log(err);
-                return err;
+    return User.findOne({email: this.req.query.email})
+        .then(function(user){
+            if(user.authenticate(password)){
+                session.user_id = user.id;
+                session.save(function(err) {
+                    if(err){
+                        log.debug("session save error: " + err);
+                    }
+                });
+                // response.set('Set-Cookie', ['user_id='+user.id]);
+                log.debug("auth done well");
+                return(session.id);
             }
-        }
-    });
+        });
     
 });
 
@@ -74,36 +54,36 @@ UserController.registerAction('logout', function(){
 });
 
 UserController.registerAction('getDecks', function(){
-    log.debug(this.req.session);
+    console.log(this.req);
     if(!this.req.session.user_id) {
         log.debug('user is not logged in');
+        return("Please log in");
     } else {
-        User.findOne({_id: this.req.session.user_id}, function(err, user){
-            log.debug(err);
-            log.debug(user);
-            if(err) {
-                return err;
-            } else {
+        return User.findOne({_id: this.req.session.user_id})
+            .then(function(user) {
+                log.debug(user);
                 log.debug("there are your decks:");
-                return user.decks;
-            }
-        });
+                return JSON.stringify(user.decks);
+                
+            });
+    
     }
 });
 
 UserController.registerAction('createDeck', function(){
+    console.log(this.req.body.name);
+    console.log(this.req.session);
+    const name = this.req.body.name;
     if(!this.req.session.user_id) {
         log.debug('user is not logged in');
     } else {
-        User.findByIdAndUpdate(
-            this.req.session.user_id,
-            {$push: {"decks": {name: this.req.body.name}}},
-            {safe: true, upsert: true},
-            function(err, model) {
-                if(err) return err;
-                return model;
-            }
-        );
+        return User.findByIdAndUpdate(this.req.session.user_id,
+            {$push: {"decks": {name: name}}})
+            .then(function(result) {
+                log.debug(result);
+                return JSON.stringify(result);
+            });
+            
     }
 });
 
