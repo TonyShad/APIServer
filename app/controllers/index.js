@@ -2,8 +2,9 @@ const Error = require('common').Error;
 const errorCodes = require('common/data/errorCodes.json');
 
 class Controller {
-    constructor(req) {
+    constructor(req, res) {
         this.req = req;
+        this.res = res;
         this._actions = this.actions || {};
     }
 
