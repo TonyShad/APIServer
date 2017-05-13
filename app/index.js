@@ -19,12 +19,12 @@ const db = mongoose.connect(config.dburi);
 const connection = db.connection;
 const models = require("./models");
 
-app.use(session({
-	secret: config.secret,
-	resave: true,
-    saveUninitialized: true,
-	store: new MongoStore({mongooseConnection: connection})
-}));
+// app.use(session({
+// 	secret: config.secret,
+// 	resave: true,
+//     saveUninitialized: true,
+// 	store: new MongoStore({mongooseConnection: connection})
+// }));
 
 app.use(router);
 
@@ -39,11 +39,6 @@ connection.on("error", function(){
 
 });
 connection.once("open", function(){
-	// log.debug("SOME DB REQUEST WAS MADE");
-	// connection.db.listCollections()
- //    .next(function(err, collinfo) {
- //        if (collinfo) {
- //            log.debug(collinfo);
- //        }
- //    });
+	 log.debug("Connected to DB");
+	
 });
