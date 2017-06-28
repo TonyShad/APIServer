@@ -6,11 +6,19 @@ const Schema = mongoose.Schema;
 const log = require('../../logger');
 const uniqueValidator = require('mongoose-unique-validator');
 
+const CardSchema = new Schema({
+  name: {type: String, index: true, required: false, uniquie: true, sparse: true},
+});
+
 const UserSchema = new Schema({
   email: { type: String, index: true, unique: true, required: true, default: '' },
   hashed_password: { type: String, required: true },
   salt: { type: String, default: '' },
-  decks: [{_id: false, name: {type: String, required: false, uniquie: false}}]
+  cards: [CardSchema],
+  decks: [{
+    name: {type: String, required: false, uniquie: false},
+    cards: [CardSchema],
+  }],
 
 });
 
