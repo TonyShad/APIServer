@@ -13,9 +13,10 @@ class AuthController extends Controller {
 	}
 }
 
+
 AuthController.registerAction('register', function(){
-    console.log(this.req.body);
-	const user = new User(this.req.body);
+	const user = new User(this.req.query);
+    console.log(this.req.query);
     // const session = this.req.session;
     return user.save()
         .then(function(model) {
@@ -29,6 +30,12 @@ AuthController.registerAction('register', function(){
                 .catch(function(err){
                     return "User created";
                 })
+        })
+        .catch(function(error) {
+            let errors = error.errors;
+            for(let field in errors) {
+                throw new Error(errorCodes.authFail, errors[field].message, {actionName: "register"});
+            }
         });
 });
 
@@ -46,23 +53,21 @@ AuthController.registerAction('login', function(){
                     })
                     .catch(function(err){
                         log.debug(err);
-                        return "auth fail";
+                        throw new Error(errorCodes.authFail, err.message, {actionName: "login"});
                     })
             } else {
-                return("Login or password is not valid");
+                throw new Error(errorCodes.authFail, 'User not found', {actionName: "login"});
             }
         })
         .catch(function(err){
-            return "Login or password is not valid";
+            throw new Error(errorCodes.authFail, 'User not found', {actionName: "login"});
         });
     
 });
 
 AuthController.registerAction('logout', function(){
     const sessionID = this.req.headers.sessionid;
-    log.debug("before if");
     if(sessionID) {
-        log.debug("inside if");
         log.debug(sessionID);
         return Session.findOneAndRemove({session_id: sessionID})
             .then(function(session) {
@@ -73,7 +78,6 @@ AuthController.registerAction('logout', function(){
                 }
             });
     } else {
-        log.debug("this shit is fucked up");
         return "User is logged out";
     }
 });

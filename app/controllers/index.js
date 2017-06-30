@@ -22,6 +22,18 @@ class Controller {
         }
         return result;
     }
+
+    before() {
+        return new Promise((resolve) => {
+            resolve();
+        });
+    }
+
+    after(res) {
+        return new Promise((resolve) => {
+            resolve(res);
+        });
+    }
 }
 
 Controller.registerAction = function (name, fn) {

@@ -42,3 +42,4 @@ connection.once("open", function(){
 	 log.debug("Connected to DB");
 	
 });
+
